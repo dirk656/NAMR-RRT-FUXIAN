@@ -172,4 +172,39 @@ def check_collision_line_circles_rectangles(line, circles, rectangles, clearance
         rectangles_y1 = rectangles[:, 1] - clearance
         rectangles_x2 = rectangles[:, 0] + rectangles[:, 2] + clearance
         rectangles_y2 = rectangles[:, 1] + rectangles[:, 3] + clearance
-        rectangle_aabbs = np.array([[rectangles_x1, rectangles_y1], [rectangles_x2, rectangles_y2]]).transpose
+        rectangle_aabbs = np.array([[rectangles_x1, rectangles_y1], [rectangles_x2, rectangles_y2]]).transpose(2, 0, 1)
+        
+        # 使用包围盒快速筛选可能发生碰撞的矩形障碍物
+        rectangle_aabb_collisions = check_collsion_aabb_aabbs(line_aabb, rectangle_aabbs)
+        rectangles_to_check = rectangles[np.where(rectangle_aabb_collisions)]
+        
+        # 对筛选出的矩形障碍物进行精确碰撞检测
+        if len(rectangles_to_check) > 0:
+            for rectangle_to_check in rectangles_to_check:
+                if check_collision_line_single_rectangle(line, rectangle_to_check, clearance):
+                    return True
+    
+    return False
+
+
+def points_in_range(points, x_range, y_range, clearance=0):
+    """
+    检查点是否在给定范围内
+    
+    参数:
+        points: (n, 2) 点云数组
+        x_range: (x_min, x_max) x轴范围
+        y_range: (y_min, y_max) y轴范围
+        clearance: 安全余量
+    
+    返回:
+        bool数组: 形状为 (n,)，指示每个点是否在范围内
+    """
+    x_min, x_max = x_range
+    y_min, y_max = y_range
+    
+    # 检查点是否在扩展后的范围内（考虑安全余量）
+    in_x = (points[:, 0] >= x_min - clearance) & (points[:, 0] <= x_max + clearance)
+    in_y = (points[:, 1] >= y_min - clearance) & (points[:, 1] <= y_max + clearance)
+    
+    return in_x & in_y
