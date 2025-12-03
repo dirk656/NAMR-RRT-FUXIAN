@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Dataset Generator for PointNet++ Training
-Generates point cloud datasets from 2D environment maps for NAMR-RRT algorithm.
-"""
 
 import os
 import sys
@@ -41,7 +37,7 @@ class PointCloudDatasetGenerator:
             config: Dictionary containing configuration parameters
         """
         self.config = config
-        self.output_dir = config.get('output_dir', '../NAMR-RRT/data')
+        self.output_dir = config.get('output_dir', '../NAMR-RRT/data/random_2d')
         self.n_points = config.get('n_points', 1024)  # PointNet++ standard
         self.test_size = config.get('test_size', 0.2)
         self.val_size = config.get('val_size', 0.1)
@@ -240,7 +236,7 @@ class PointCloudDatasetGenerator:
 def main():
     """Main function to generate all datasets."""
     config = {
-        'output_dir': '../NAMR-RRT/data',
+        'output_dir': '../NAMR-RRT/data/random_2d',
         'n_points': 1024,  # PointNet++ standard input size
         'test_size': 0.2,  # 20% for testing
         'val_size': 0.1,   # 10% for validation (of remaining 80%)
